@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+BAT_PATH=$(upower -e | grep 'BAT')
+INFO=$(upower -i "$BAT_PATH")
+
+# If no flags are passed, print everything
+if [[ $# -eq 0 ]]; then
+    echo "$INFO"
+    exit 0
+fi
+
+while getopts ":ptevrsca" opt; do
+    case $opt in
+        p) echo "$INFO" | grep -E "percentage:" ;;
+        t) echo "$INFO" | grep -E "time to empty:" ;;
+        e) echo "$INFO" | grep -E "energy:" ;;
+        r) echo "$INFO" | grep -E "energy-rate:" ;;
+        v) echo "$INFO" | grep -E "voltage:" ;;
+        c) echo "$INFO" | grep -E "capacity:" ;;
+        s) echo "$INFO" | grep -E "state:" ;;
+        a) echo "$INFO" ;;
+        *)
+            echo "Unknown flag: -$OPTARG"
+            exit 1
+            ;;
+    esac
+done
