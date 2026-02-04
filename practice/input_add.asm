@@ -4,6 +4,8 @@ section .data
 
 section .bss
 	buffer resb 128   ; reserve 128 bytes (uninitialized)
+	left_buf 32
+	right_buf 32
 
 section .text
 	global _start
@@ -129,8 +131,28 @@ strlen: ;find length of null terminated strings
 	ret
 	
 
-; input: rdi = expression as a string
-; process: loops through the expression until it finds a operator
-; output: rax = different number for each operation
-get_operation:
+; input: rdi = pointer to nulll terminated string,  sil = chr to find
+strchr:
+	push rdi  ; save OG pointer
+	mov al, sil   ; al = chr to find
+.loop:
+	cmp byte [rdi], al   ; [rdi] == chr ?
+	je .found       ; yes -> return pointer
+	cmp byte [rdi], 0  ; [rdi] == '\0' ?
+	je .not_found   ; yes -> chr not found
+	inc rdi  ; next chr
+	jmp .loop
+.found:
+	mov rax, rdi  ; return current pointer
+	pop rdi   ; restore clean stack
+	ret
+.not_found:
+	xor rax, rax  ; return null
+	pop rdi
+	ret
+
+
+; function to look for a operator by using strchr 
+; checks each char if equal to a operator
+operator:
 	
